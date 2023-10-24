@@ -104,46 +104,10 @@ export default function Page() {
       </AppBar>
     </Box>
 
-<Card sx={{ minWidth: 275 }}>
 
-  <CardMedia
-        component="img"
-        alt = "green iguana"
-        height="140"
-        image="/app/img/02.png"
-      />
-      <CardContent>
-       
-        <Typography variant="h5" component="div">
-          <p>chainId: {chainId}</p>
-        </Typography>
 
-        <Typography variant="h5" component="div">
-          <p>isActive: {isActive.toString()}</p>
-        </Typography>
+  
 
-        <Typography variant="h5" component="div">
-          <p>accounts: {accounts ? accounts[0] : ""}</p>
-        </Typography>
-
-        <Typography variant="h5" component="div">
-          {isActive ? (
-        <input type="button" onClick={handleDisconnect} value={"Disconnect"} />
-      ) : (
-        <input type="button" onClick={handleConnect} value={"Connect"} />
-      )}
-        </Typography>
-        
-      </CardContent>
-      
-    </Card>
-
- <CardMedia
-        component="img"
-        
-        img =".img/02.png" alt="React Image" 
-      
-      />
       
     </div>
   );
