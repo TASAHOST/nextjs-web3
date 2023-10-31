@@ -17,6 +17,37 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { Chip } from "@mui/material";
 import Stack from '@mui/material/Stack';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import TextField from '@mui/material/TextField';
+
+import { ethers } from "ethers";
+import { formatEther, parseUnits } from "@ethersproject/units";
+import abi from "./abi.json"
+
+const style = {
+  width: '100%',
+  maxWidth: 360,
+  bgcolor: 'red',
+};
+function RedBar() {
+  return (
+    <Box
+      sx={{
+       
+        backgroundColor: (theme) =>
+          theme.palette.mode === 'light'
+            ? 'rgba(255, 0, 0, 0.1)'
+            : 'rgb(255 132 132 / 25%)',
+      }}
+    />
+  );
+}
+
 
 
 const [metaMask, hooks] = initializeConnector(
@@ -42,13 +73,6 @@ export default function Page() {
     });
   }, []);
 
-  const handleConnect = () => {
-    metaMask.activate(contractChain);
-  };
-
-  const handleDisconnect = () => {
-    metaMask.resetState();
-  };
 
   const bull = (
   <Box
@@ -59,14 +83,65 @@ export default function Page() {
   </Box>
 );
 
+    const [balance, setBalance] = useState("");
+    useEffect(() =>{
+      const fetchBalance = async()=> {
+        const signer = provider.getSigner();
+        const smartContract = new ethers.Contract(contractAddress,abi,signer)
+        const myBalance = await smartContract.balanceOf(accounts[0])
+        console.log(formatEther(myBalance));
+        setBalance(formatEther(myBalance))
+      };
 
+      if (isActive){
+        fetchBalance();
+
+      }
+    }, [isActive])
+
+    
+    const [ifhuakValue, setIfhuakValue] = useState(0);
+
+    const handleSetIfhuakValue = event => {
+        setIfhuakValue(event.target.value);
+    }
+
+     const handleBuy = async () => {
+       try {
+         if (ifhuakValue <= 0) {
+           return;
+         }
+
+         const signer = provider.getSigner();
+         const smartContract = new ethers.Contract(contractAddress, abi, signer);
+         const buyValue = parseUnits(ifhuakValue.toString(), "ether");
+         const tx = await smartContract.buy({
+           value: buyValue.toString(),
+         });
+         console.log("Transaction hash:", tx.hash);
+       } catch (err) {
+         console.log(err);
+       }
+     };
+
+      useEffect(() => {
+        void metaMask.connectEagerly().catch(() => {
+          console.debug("Failed to connect  to metamask");
+        });
+      }, []);
+
+      const handleConnect = () => {
+        metaMask.activate(contractChain);
+      };
+
+      const handleDisconnect = () => {
+        metaMask.resetState();
+      };
+    
 
   return (
     <div>
       
-     
-
-
       <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
@@ -102,13 +177,63 @@ export default function Page() {
 
         </Toolbar>
       </AppBar>
+
+          {isActive && (
+        <Container maxWidth="sm" sx={{ mt: 2 }}>
+          <Card>
+            <CardContent>
+              <Stack spacing={2}>
+                <Typography
+                  sx={{ fontSize: 20 }}
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  My wallet balance
+                </Typography>
+                <TextField
+                  id="outlined-basic"
+                  label="Address"
+                  value={accounts[0]}
+                  variant="outlined"
+                />
+                <TextField
+                  id="outlined-basic"
+                  label = "IFHUAK Balance"
+                  value={balance}
+                  variant="outlined"
+                />
+
+                <Divider />
+                <Typography
+                  sx={{ fontSize: 20 }}
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Buy IFHUAK Token
+                </Typography>
+
+                <TextField
+                  required
+                  id="outlined-required"
+                  label = "Enter amount of Ether you want to buy IFHUAK Token"
+                  defaultValue=""
+                  type="number"
+                  onChange={handleSetIfhuakValue}
+                />
+
+                <Button variant="contained" onClick={handleBuy}>
+                  Buy IFHUAK Token
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Container>
+      )}
+
     </Box>
 
 
 
-  
-
-      
     </div>
   );
 }
